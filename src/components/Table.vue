@@ -4,7 +4,7 @@
             <label for="num">Введите число</label>
             <input id="num" type="number" min="1" max="1000" ref="input" @input="onInput"/>
             <span>{{errMessage}}</span>
-            <button type="button" @click="onInput() + fillArray()">Рассчитать</button>
+            <button type="button" @click="validate">Рассчитать</button>
         </div>
         
         <ul class="data">
@@ -14,7 +14,7 @@
         </ul>
         
         <div class="result" v-show="valid">
-            <p>{{this.result}}</p>
+            {{this.result}}
         </div>
     
     
@@ -55,39 +55,28 @@
 
 
         methods: {
-            getRandomIndex: function (min, max) {
+            getRandomIndex(min, max) {
                 return min + Math.floor(Math.random() * (max + 1 - min));
             },
 
-            fillArray: function () {
-                let num = this.$refs.input.value;
-                if (!num) {
-                    this.errMessage = 'Введите число!'
-                } else if (num < 1) {
-                    this.errMessage = 'Введите число больше 0!'
-                } else if (num > 1000) {
-                    this.errMessage = 'Введите число не больше 1000!'
-                } else {
-                    this.valid = true;
-                    for (let i = 1; i <= num; i++) {
-                        let indexValue = this.getRandomIndex(0, this.countObj.length - 1);
-                        if (num < 2) {
-                            this.list.push(this.countObj[indexValue].name);
+            fillArray(n) {
+                this.valid = true;
+                for (let i = 1; i <= n; i++) {
+                    let indexValue = this.getRandomIndex(0, this.countObj.length - 1);
+                    if (n < 2) {
+                        this.list.push(this.countObj[indexValue].name);
+                    } else {
+                        if (i < n) {
+                            this.countObj[indexValue].count++;
+                            this.list.push(this.countObj[indexValue].name)
                         } else {
-                            if (i < num) {
-                                this.countObj[indexValue].count++;
-                                this.list.push(this.countObj[indexValue].name)
-                            } else {
-                                this.resultNumber = this.countObj.reduce((acc, curr, i) => this.countObj[acc].count > curr.count ? acc : i, 0);
-                                this.list.push(this.countObj[this.resultNumber].name)
-                            }
+                            this.resultNumber = this.countObj.reduce((acc, curr, i) => this.countObj[acc].count > curr.count ? acc : i, 0);
+                            this.list.push(this.countObj[this.resultNumber].name)
                         }
-
                     }
-                    this.result = this.list.sort((a, b) => a.count < b.count ? 1 : -1)[0];
-                }
 
-                
+                }
+                this.result = this.list.sort((a, b) => a.count < b.count ? 1 : -1)[0];
             },
 
             onInput() {
@@ -97,6 +86,20 @@
                 this.result = '';
                 for (let j = 0; j < this.countObj.length; j++) {
                     this.countObj[j].count = 0;
+                }
+            },
+
+            validate() {
+                let num = this.$refs.input.value;
+                if (!num) {
+                    this.errMessage = 'Введите число!'
+                } else if (num < 1) {
+                    this.errMessage = 'Введите число больше 0!'
+                } else if (num > 1000) {
+                    this.errMessage = 'Введите число не больше 1000!'
+                } else {
+                    this.onInput();
+                    this.fillArray(num);
                 }
             }
         },
@@ -185,6 +188,7 @@
         border: 1px solid red;
         box-sizing: border-box;
         height: 55px;
+        padding-top: 16px;
     }
 
 </style>
